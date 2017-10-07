@@ -1,0 +1,49 @@
+#json data
+
+student1_json = load '/home/orienit/work/pig_inputs/project_tasks/student1.json' USING JsonLoader('name:chararray, id:int,course:chararray, year:int');
+
+dump student1_json;
+
+students = FILTER student1_json BY id >2 AND course == 'spark';
+
+dump students;
+
+STORE students INTO '/user/orienit/pig/student1_op';
+
+#xml data
+
+register '/home/orienit/work/pig-0.16.0/lib/piggybank.jar';
+
+DEFINE XPath org.apache.pig.piggybank.evaluation.xml.XPath();
+
+student1_xml = load '/home/orienit/work/pig_inputs/project_tasks/student1.xml' USING org.apache.pig.piggybank.storage.XMLLoader('student') as (doc:chararray);
+
+
+
+student2_xml = FOREACH student1_xml GENERATE XPath(doc, 'student/name'), XPath(doc, 'student/id'), XPath(doc, 'student/course'), XPath(doc, 'student/year');
+
+student3_xml = foreach student2_xml generate $0 AS name,(int) $1 AS id,$2 AS course,(int) $3 AS year;
+
+dump student3_xml;
+
+student4_xml = FILTER student3_xml BY id >2 AND course == 'spark';
+
+dump student4_xml;
+
+store student4_xml into '/user/orienit/pig/student1_op2';
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
