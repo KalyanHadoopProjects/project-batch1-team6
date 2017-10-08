@@ -1,0 +1,17 @@
+#start hbase
+hbase shell
+
+#create student_hbase table in hbase
+create 'student_hbase','hbase_student_table'
+
+#start pig
+pig -x local
+
+#load student.csv to pig bag A
+A = LOAD '/home/orienit/student.csv' USING PigStorage(',') AS (name:chararray, id:bytearray, course:chararray, year:chararray);
+
+#store bag a into Hbase
+STORE A INTO 'hbase://student_hbase' USING org.apache.pig.backend.hadoop.hbase.HBaseStorage('hbase_student:name,hbase_student:id,hbase_student:course,hbase_student:year');
+
+#hbase checking student_hbase table 
+hbase> scan 'student_hbase'

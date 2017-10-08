@@ -1,0 +1,11 @@
+csv to json
+----------------
+A = LOAD '/home/orienit/student.csv' USING PigStorage(',') AS (name:chararray, id:bytearray, course:chararray, year:chararray);
+
+STORE A INTO '/home/orienit/csv_to_json' USING org.apache.pig.builtin.JsonStorage();
+
+json to tsv/csv
+----------------
+C = LOAD '/home/orienit/csv_to_json' USING JsonLoader('name:chararray,id:bytearray,course:chararray,year:chararray');
+
+STORE C INTO '/home/orienit/json_to_tsv' USING PigStorage('\t');
