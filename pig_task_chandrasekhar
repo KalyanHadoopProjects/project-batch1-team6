@@ -1,0 +1,24 @@
+csv to json
+===========
+
+A = LOAD '/home/orienit/work/student.csv' USING PigStorage(',') as (name:chararray,id:int,course:chararray,year:int);
+ describe A; # Displaying the BAG schema in Console.
+dump A; #  Displaying the BAG data in Console.
+
+STORE A INTO '/home/orienit/pig_json' USING org.apache.pig.builtin.JsonStorage();
+
+json to tsv
+============
+
+
+
+A = LOAD '/home/orienit/work/student..json' 
+USING JsonLoader('name:chararray, id:int, course:chararray, year:int'); # loading data into bag
+
+describe A; # Displaying the BAG schema in Console.
+
+dump A; #  Displaying the BAG data in Console.
+
+
+STORE A INTO '/home/orienit/pig_json_tsv' USING PigStorage('\t'); # storing bag data 
+
