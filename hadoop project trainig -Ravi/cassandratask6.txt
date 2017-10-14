@@ -1,0 +1,27 @@
+CREATE KEYSPACE ravi WITH replication = {'class': 'SimpleStrategy', 'replication_factor' : 1};
+
+use ravi;
+
+--------------------------------------------------------------------------------------------------
+CREATE TABLE student1_csv (
+	name text,
+	id int PRIMARY KEY,
+	course text,
+	year int
+) WITH comment='Student information';
+
+COPY student1_csv (name,id,course,year) FROM '/home/orienit/task6/student1.csv';
+
+select * from student1_csv WHERE token(id) > token(2) AND course IN ('spark') ALLOW FILTERING;
+
+--------------------------------------------------------------------------------------------------
+CREATE TABLE student1_tsv (
+	name text,
+	id int PRIMARY KEY,
+	course text,
+	year int
+) WITH comment='Students information';
+
+COPY student1_tsv (name,id,course,year) FROM '/home/orienit/task6/student1.tsv' WITH DELIMITER='\t';
+
+select * from student1_tsv WHERE token(id) > token(2) AND course IN ('spark') ALLOW FILTERING;
