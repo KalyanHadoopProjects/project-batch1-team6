@@ -1,0 +1,90 @@
+JSON DATA:
+====================
+
+student1_json = load '/home/orienit/Desktop/tasks/pig_input/student1.json' USING JsonLoader('name:chararray, id:int,course:chararray, year:int');
+
+dump student1_json;
+
+students = FILTER student1_json BY id>2 AND course =='spark';
+
+dump students;
+
+STORE students INTO '/home/orienit/pig/student1_op';
+
+XML DATA:
+=================
+
+#xml data
+
+register '/home/orienit/work/pig-0.16.0/lib/piggybank.jar';
+
+DEFINE XPath org.apache.pig.piggybank.evaluation.xml.XPath();
+
+student1_xml = load '/home/orienit/Desktop/tasks/pig_input/student1.xml' USING org.apache.pig.piggybank.storage.XMLLoader('student') as (doc:chararray);
+
+
+
+student2_xml = FOREACH student1_xml GENERATE XPath(doc, 'student/name'), XPath(doc, 'student/id'), XPath(doc, 'student/course'), XPath(doc, 'student/year');
+
+student3_xml = foreach student2_xml generate $0 AS name,(int) $1 AS id,$2 AS course,(int) $3 AS year;
+
+dump student3_xml;
+
+student4_xml = FILTER student3_xml BY id >2 AND course == 'spark';
+
+dump student4_xml;
+
+store student4_xml into '/home/orienit/pig/student1_op2';
+
+=========================================
+TASK 3:
+
+hadoop fs -mkdir -p hdfs://localhost:8020/user/demo/pigxmlinput
+
+hadoop fs -put /home/orienit/Desktop/tasks/pig_input/student3.xml hdfs://localhost:8020/user/demo/pigxmlinput/student3.xml
+
+REGISTER /jar/piggybank.jar  
+
+DEFINE XPath org.apache.pig.piggybank.evaluation.xml.XPath();
+
+
+
+======================================================
+TASK 4 :
+hadoop fs -mkdir -p hdfs://localhost:8020/user/demo/pigxmlinput
+
+hadoop fs -put /home/demo/Desktop/project_task/pig_input/student4.xml hdfs://localhost:8020/user/demo/pigxmlinput/student4.xml
+
+REGISTER /jar/piggybank.jar  
+
+DEFINE XPath org.apache.pig.piggybank.evaluation.xml.XPath();
+
+student4 =  LOAD 'pigxmlinput/student4.xml' using org.apache.pig.piggybank.storage.XMLLoader('student') as (x:chararray);
+
+records_op = FOREACH records GENERATE XPath(x, 'student/name'), XPath(x, 'student/id'), XPath(x, 'student/course'), XPath(x, 'student/year'), XPath(x, 'student/details/address'), XPath(x, 'student/details/pincode');
+
+records_op1 = foreach records_op generate $0 as name, (int) $1 as id,$2 as course,(int) $3 as year,$4 as address,(int) $5 as pincode;
+
+student4_op = FILTER records_op1 BY id > 2 AND (address=='hyderabad' or address=='banglore');
+
+DUMP student4_op; 
+ 
+store filtered_records into '/user/orienit/pig/student4_op' using PigStorage(':')
+
+
+==================================
+TASK 7 :
+
+
+Riskfactor = load '/home/orienit/Desktop/tasks/pig_input/Behavioral_Risk_Factor_Surveillance_System.csv' as ( YearStart:int, YearEnd:int, LocationAbbr:chararray, LocationDesc:chararray, DataSource:chararray, Class:chararray, Topic:chararray, Question:chararray, Data_Value_Unit:chararray, Data_Value_Type:chararray, Data_Value:int, Data_Value_Alt:int, Data_Value_Footnote_symbol:chararray, Data_Value_Footnote:chararray, Low_Confidence_Limit:int,High_Confidence_Limit:int, Sample_Size:int, Total:int, Age:int, Education:chararray, Gender:chararray, Income:chararray, Race:chararray, GeoLocation:int, ClassID:chararray, TopicID:chararray, QuestionID:chararray, DataValueTypeID:chararray, LocationID:int, StratificationCatogery1:chararray, Stratification1:chararray, StratificationcatogeryId1:chararray, StratificationID1:chararray);
+
+Riskfactorfilter = FILTER Riskfactor BY sample_size>1000;
+
+
+
+
+
+
+grunt> a1 = load 'student' using org.apache.hive.hcatalog.pig.HCatLoader();
+
+
