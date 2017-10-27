@@ -1,0 +1,96 @@
+Task * 1: using Json DataSet 
+---------------------------
+
+add jar /home/orienit/work/apache-hive-1.2.1-bin/lib/hive-serdes-1.0-SNAPSHOT.jar
+
+
+hadoop fs -mkdir /json
+hadoop fs -put /home/orienit/Desktop/tasks/hive_input/student1.json /json/student1.json
+
+---
+CREATE EXTERNAL TABLE kalyan.student1_json(name string, id int, course string, year int)
+ROW FORMAT SERDE 'com.cloudera.hive.serde.JSONSerDe'
+location '/json';
+
+CREATE EXTERNAL TABLE kalyan.student1_op(name string, id int, course string, year int);
+
+
+insert into kalyan.student1_op(name,id, course, year) select name,id, course, year from kalyan.student1_json where id>2 and course="spark";
+
+select * from kalyan.student1_op;
+
+================================================================================================
+task *2 : using xml data
+-------------------------
+
+add jar /home/orienit/work/apache-hive-1.2.1-bin/lib/hivexmlserde-1.0.5.3.jar
+
+
+hadoop fs -mkdir /xml
+
+hadoop fs -put /home/orienit/Desktop/tasks/hive_input/student1.xml /xml/student1.xml
+
+
+CREATE EXTERNAL TABLE student1_xml(name string, id int, course string, year int)
+ROW FORMAT SERDE 'com.ibm.spss.hive.serde2.xml.XmlSerDe'
+WITH SERDEPROPERTIES (
+"column.xpath.name"="/student/name/text()",
+"column.xpath.id"="/student/id/text()",
+"column.xpath.course"="/student/course/text()",
+"column.xpath.year"="/student/year/text()"
+)
+STORED AS
+INPUTFORMAT 'com.ibm.spss.hive.serde2.xml.XmlInputFormat'
+OUTPUTFORMAT 'org.apache.hadoop.hive.ql.io.IgnoreKeyTextOutputFormat'
+TBLPROPERTIES (
+"xmlinput.start"="<student>",
+"xmlinput.end"="</student>"
+);
+
+load data inpath "/xml/student1.xml" into table student1_xml
+
+CREATE EXTERNAL TABLE student1_op(name string, id int, course string, year int);
+
+
+INSERT INTO student1_op (name, id, course, year) SELECT name, id, course, year FROM student1_xml WHERE id>2 and course="spark";
+
+select * from student1_op;
+
+
+
+=================================================
+TASK * 7
+hadoop fs -put /home/demo/Desktop/project_task/hive_input/Behavioral_Risk_Factor_Surveillance_System.csv /csv/Behavioral_Risk_Factor_Surveillance_System.csv
+
+hive> add jar /home/demo/Downloads/jar_files/hive-serde-0.14.0.jar;
+
+create external table RiskFactor(YearStart int, YearEnd int, LocationAbbr string, LocationDesc string, DataSource string, Class string, Topic string, Question string, Data_Value_Unit string, Data_Value_Type string, Data_Value int, Data_Value_Alt int, Data_Value_Footnote_symbol string, Data_Value_Footnote string, Low_Confidence_Limit int,High_Confidence_Limit int, Sample_Size int, Total int, Age int, Education string, Gender string, Income string, Race string, GeoLocation int, ClassID string, TopicID string, QuestionID string, DataValueTypeID string, LocationID int, StratificationCatogery1 string, Stratification1 string, StratificationcatogeryId1 string, StratificationID1 string)
+ROW FORMAT SERDE 'org.apache.hadoop.hive.serde2.OpenCSVSerde'
+STORED AS INPUTFORMAT 'org.apache.hadoop.mapred.TextInputFormat' 
+OUTPUTFORMAT 'org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat' 
+LOCATION '/csv'
+tblproperties("skip.header.line.count"="1");
+
+
+
+create external table RiskFactorPartition(yearEnd, LocationDesc, GeoLocation) as select yearend,locationdesc,geolocation from RiskFactor;
+
+
+
+
+
+create external table RiskFactorpartition(YearStart int, LocationAbbr string,  DataSource string, Class string, Topic string, Question string, Data_Value_Unit string, Data_Value_Type string, Data_Value int, Data_Value_Alt int, Data_Value_Footnote_symbol string, Data_Value_Footnote string, Low_Confidence_Limit int,High_Confidence_Limit int, Sample_Size int, Total int, Age int, Education string, Gender string, Income string, Race string, ClassID string, TopicID string, QuestionID string, DataValueTypeID string, LocationID int, StratificationCatogery1 string, Stratification1 string, StratificationcatogeryId1 string, StratificationID1 string)
+PARTITIONED BY ( YearEnd int,LocationDesc string,GeoLocation int)
+ROW FORMAT DELIMITED
+FIELDS TERMINATED BY '\t'
+LINES TERMINATED BY '\n'
+STORED AS TEXTFILE;
+
+
+
+INSERT OVERWRITE TABLE riskFactorPartition PARTITION(YearEnd,LocationDesc,GeoLocation) select * from RiskFactor;
+
+SHOW PARTITIONS riskfactorpartition;
+
+
+
