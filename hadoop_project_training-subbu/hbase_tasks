@@ -1,0 +1,36 @@
+task1:
+
+
+hadoop fs -mkdir hdfs://localhost:8020/nosqltask1tsv
+hadoop fs -mkdir hdfs://localhost:8020/nosqltask1csv
+
+hadoop fs -put student1.tsv hdfs://localhost:8020/nosqltask1tsv/student1.tsv
+hadoop fs -put student1.tsv hdfs://localhost:8020/nosqltask1csv/student1.csv
+ 
+
+hbase org.apache.hadoop.hbase.mapreduce.ImportTsv -Dimporttsv.columns=cf:name,HBASE_ROW_KEY,cf:course,cf:year student1_tsv hdfs://localhost:8020/nosqltask1tsv/student1.tsv
+
+
+
+
+ scan 'student1_tsv',{FILTER=> "(RowFilter(>,'binary:2') AND ValueFilter(=,'binary:spark'))"}
+
+
+===========================================
+
+
+TASK 2
+
+//EXPORTING HBASE TABLE TO HDFS"|//
+
+hbase org.apache.hadoop.hbase.mapreduce.Export "student1_csv" "/user/orienit/kalyan/hbase/student1_csv"
+hbase org.apache.hadoop.hbase.mapreduce.Export "student1_tsv" "/user/orienit/kalyan/hbase/student1_tsv"
+
+
+hbase org.apache.hadoop.hbase.mapreduce.ImportTsv -Dimporttsv.separator=, -Dimporttsv.columns=cf:name,HBASE_ROW_KEY,cf:course,cf:year student1_csv hdfs://localhost:8020/nosqltask1csv/student1.csv/part-m-00000
+
+
+hbase org.apache.hadoop.hbase.mapreduce.Import -Dimport.columns=cf:name,HBASE_ROW_KEY,cf:course,cf:year student1_tsv1 hdfs://localhost:8020/user/orienit/kalyan/hbase/student1_tsv/part-m-00000
+
+
+
