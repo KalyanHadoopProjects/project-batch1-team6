@@ -1,0 +1,36 @@
+drop table if exists kalyan.student1_json;
+drop table if exists kalyan.student1_json1;
+create database if not exists kalyan;
+CREate table if not exists kalyan.student1_json(str string);
+load data  local inpath 
+"/home/cloudera/Desktop/Hadoop Project orienit/project-batch1-kalyan-master/kalyan/hive/student1.json" 
+into table kalyan.student1_json;
+CREate table if not exists kalyan.student1_json1(name string,ID int , course string,year int);
+insert into kalyan.student1_json1
+select get_json_object(str,'$.name') as name,
+get_json_object(str,'$.id') as id,
+get_json_object(str,'$.course') as course,
+get_json_object(str,'$.year') as year from kalyan.student1_json;
+
+select distinct * from kalyan.student1_json1 where id>2 and course='spark';
+
+drop table kalyan.student1_xml1;
+drop table kalyan.student1_xml;
+create database if not exists kalyan;
+CREate table if not exists kalyan.student1_xml(str string);
+load data  local inpath /
+"/home/cloudera/Desktop/Hadoop Project orienit/project-batch1-kalyan-master/kalyan/hive/student1.xml" 
+into table kalyan.student1_xml;
+CREate table if not exists kalyan.student1_xml1(name string,ID int , course string,year int);
+insert into kalyan.student1_xml1
+select get_json_object(str,'student/name/text()') as name,
+xpath(str,'student/id/text()') as id,
+get_json_object(str,'student/course/text()') as course,
+get_json_object(str,'student/year/text()') as year from kalyan.student1_xml;
+
+select distinct * from kalyan.student1_xml1 where id>2 and course='spark';
+
+
+                                                 
+                                                 
+                                                 
