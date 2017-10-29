@@ -1,0 +1,28 @@
+//streaming from netcat by using pyspark
+
+from pyspark import SparkContext
+
+from pyspark.streaming import StreamingContext
+
+sc = SparkContext("local[2]","bommi streaming demo")
+
+ssc = StreamingContext(sc,60000)
+
+lines = ssc.socketTextStream("localhost", 9996)
+
+words = lines.flatMap(lambda line : line.split(" "))
+
+pairs = words.map(lambda word : (word, 1))
+
+wordCounts = pairs.reduceByKey(lambda x, y : x + y)
+
+
+wordCounts.saveAsTextFiles("hdfs://quickstart.cloudera:8080/user/spark/" )
+
+
+ssc.start() 
+
+ssc.awaitTermination() 
+
+
+
