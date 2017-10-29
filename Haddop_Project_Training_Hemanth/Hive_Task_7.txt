@@ -1,3 +1,8 @@
+create external table if not exists student_hive_hbase(key string,name string,id int, course string, year date)
+stored by 'org.apache.hadoop.hive.hbase.HBaseStorageHandler'
+with serdeproperties("hbase.columns.mapping"=":key,cf1:name,cf1:id,cf2:course,cf2:year")
+tblproperties("hbase.table.name"="student_hive_hbase");
+
 drop table kalyan.RiskFactor
 
 create  table if not exists kalyan.RiskFactor(
@@ -20,3 +25,42 @@ load data local inpath
 overwrite into table kalyan.RiskFactor;
 
 select * from kalyan.RiskFactor limit 10;
+
+create  table if not exists kalyan.RiskFactorPartition(
+YearStart int ,LocationAbbr string ,Datasource string ,Class string ,Topic string,
+Question string ,Data_Value_Unit string ,Data_Value_Type string ,Data_Value int,
+Data_Value_Alt double,Data_Value_Footnote_Symbol string ,Data_Value_Footnote string,
+Low_Confidence_Limit double ,High_Confidence_Limit double,
+Sample_Size int,Total string ,Age string,Education string,Gender string ,Income string ,Race string 
+  ,classID string,  TopicID string,QuestionID string ,
+DataValueTypeID string,LocationID string,StratificationCategory1 string,
+Stratification1 string ,StratificationCategoryId1 string ,SatisfactionId1 String)
+
+partitioned by (YearEnd String ,LocationDesc string,  GeoLocation string )
+
+row format delimited 
+fields terminated by ",";
+
+set hive.exec.dynamic.partition=true;
+
+
+set hive.exec.dynamic.partition.mode=nonstrict;
+set hive.exec.max.dynamic.partitions = 100000;
+set hive.exec.max.dynamic.partitions.pernode=100000;
+
+insert overwrite table kalyan.RiskFactorPartition
+ partition(YearEnd,LocationDesc,GeoLocation) select 
+YearStart,
+LocationAbbr ,
+Datasource  ,Class  ,Topic ,
+Question ,Data_Value_Unit  ,Data_Value_Type  ,Data_Value ,
+Data_Value_Alt ,Data_Value_Footnote_Symbol  ,Data_Value_Footnote ,
+Low_Confidence_Limit ,High_Confidence_Limit ,
+Sample_Size ,Total  ,Age ,Education ,Gender  ,Income  ,Race  ,
+classID ,  TopicID ,QuestionID  ,
+DataValueTypeID ,LocationID ,StratificationCategory1 ,
+Stratification1 ,StratificationCategoryId1  ,SatisfactionId1 , 
+YearEnd  ,LocationDesc , GeoLocation
+from kalyan.RiskFactor;
+
+select * from kalyan.RiskFactorPartition ;
