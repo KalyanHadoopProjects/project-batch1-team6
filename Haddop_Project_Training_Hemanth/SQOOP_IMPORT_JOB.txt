@@ -1,0 +1,41 @@
+
+sqoop eval --connect "jdbc:mysql://quickstart.cloudera:3306/mysql" \
+--username root \
+ -password cloudera  \
+--query "select * from db;"
+
+sqoop eval --connect "jdbc:mysql://quickstart.cloudera:3306/retail_db" \
+--username root \
+-password cloudera \
+--query "select * from orders order by order_date desc limit 5;";
+
+sqoop job --create myjob \
+-- import --connect "jdbc:mysql://quickstart.cloudera:3306/retail_db" \
+ --username root \
+-password cloudera \
+--table orders \
+ --target-dir hdfs://quickstart.cloudera:8020/user/SQOOP/;
+
+sqoop import \
+ --connect "jdbc:mysql://quickstart.cloudera:3306/retail_db"  \
+--username root -password cloudera --table categories \
+--m 2 --input-fields-terminated-by ':' \
+ --target-dir hdfs://quickstart.cloudera:8020/user/SQOOP/categories;
+
+--option-file for hiding information about password, connection, user
+
+sqoop import \
+--options-file "/home/cloudera/Desktop/Hemanth_Bommi/SQOOP/options_file"  \
+--table categories --m 2 \
+--input-fields-terminated-by ':'  \
+--target-dir hdfs://quickstart.cloudera:8020/user/SQOOP/categories;
+
+/home/cloudera/Desktop/Hemanth_Bommi/SQOOP
+         
+
+
+Driver name: com.mysql.jdbc.Driver
+
+sqoop job --exec myincrementaljob -- --incremental lastmodified 
+
+Sqoop-metastore:
