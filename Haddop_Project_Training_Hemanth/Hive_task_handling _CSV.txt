@@ -1,0 +1,44 @@
+use kalyan;
+--create table csv_table for processing CSV data
+
+create table if not exists csv_table  (name  string,id int,course string, year string)
+row format delimited
+fields terminated by ','
+stored as Textfile;
+load data local inpath "/home/cloudera/Desktop/csv file"
+overwrite into table csv_table;
+
+select * from csv_table;
+
+--create table Avro_table with avro properties
+
+create table if not exists avro_table
+row format serde 'org.apache.hadoop.hive.serde2.avro.AvroSerDe'
+stored as inputformat 'org.apache.hadoop.hive.ql.io.avro.AvroContainerInputFormat'
+outputformat 'org.apache.hadoop.hive.ql.io.avro.AvroContainerOutputFormat'
+tblproperties(
+  'avro.schema.literal'='{
+  "namespace":"com.bommi"
+  ,"name":"csv_student_course_details"
+  ,"type":"record"
+  ,"fields":[{"name":"name","type":"string"},
+             {"name":"id","type":"int"},
+             {"name":"course","type":"string"},
+             {"name":"year","type":"string"}]}');
+        
+--create table Avro_table with avro properties
+
+insert overwrite table avro_table select * from csv_table;
+
+select * from avro_table;
+  
+create table if not exists parquet_table(name string,id int,course string, year string)
+stored as PARQUET ;
+
+---loading data to parquet table from avro file
+insert overwrite table parquet_table select * from avro_table;
+select * from parquet_table;
+
+
+describe  formatted  parquet_table;
+
