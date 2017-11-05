@@ -1,0 +1,10 @@
+Steps to execute 
+In the Run Configurations,  used the below as arguments:
+
+/home/training/Desktop/EventLog1.pdf /home/training/Desktop/MultiFileOutput/
+
+I have added 3 jars as I remember 
+
+fontbox-1.0.0.jar
+itextpdf-5.4.1.jar
+pdfbox-1.0.0
